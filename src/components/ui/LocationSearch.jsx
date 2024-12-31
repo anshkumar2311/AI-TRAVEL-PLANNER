@@ -59,7 +59,7 @@ const LocationSearch = () => {
     };
 
     return (
-        <div className="w-full max-w-full">
+        <div className="w-full max-w-full text-gray-700">
             <Select
                 className="w-full"
                 options={options}
