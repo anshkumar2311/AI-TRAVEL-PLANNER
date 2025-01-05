@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@clerk/clerk-react'; // Import useUser for authentication status
 import LocationSearch from '../components/ui/LocationSearch';
 import { AI_PROMPT, SelectBudgetOptions, SelectTravelsList } from '../constants/options';
 import { Button } from '../components/ui/button';
@@ -7,22 +8,45 @@ import { chatSession } from '@/service/AIModel';
 
 function CreateTrip() {
     const [place, setPlace] = useState(null);
-    const [formData, setFormData] = useState([]);
+    const [formData, setFormData] = useState(() => {
+        // Retrieve initial form data from localStorage if available
+        const savedData = localStorage.getItem('tripFormData');
+        return savedData ? JSON.parse(savedData) : {};
+    });
+    const { isSignedIn, user } = useUser(); // Get the user's signed-in status and user details
+
+    // Save user data to localStorage if user is signed in
+    useEffect(() => {
+        if (isSignedIn && user) {
+            const userData = {
+                email: user.email,
+                userId: user.id,
+                name: user.fullName,
+            };
+            localStorage.setItem('userData', JSON.stringify(userData)); // Store user data in localStorage
+        }
+    }, [isSignedIn, user]);
 
     const handleInputChange = (name, value) => {
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
     useEffect(() => {
-        console.log(formData);
+        // Save form data to localStorage whenever it changes
+        localStorage.setItem('tripFormData', JSON.stringify(formData));
     }, [formData]);
 
     const OnGenerateTrip = async () => {
-        if (formData?.days > 5 && !formData?.destination || !formData?.budget || !formData?.people || !formData?.days) {
-            toast("Please fill all the details")
+        if (!isSignedIn) {
+            toast.error("Please log in to generate a trip"); // Show alert if not signed in
+            return;
+        }
+
+        if (!formData?.destination || !formData?.days || !formData?.budget || !formData?.people) {
+            toast("Please fill all the details");
             return;
         }
 
@@ -85,6 +109,7 @@ function CreateTrip() {
                     <input
                         type="number"
                         placeholder="Ex. 3"
+                        value={formData?.days || ''}
                         onChange={(e) => handleInputChange('days', e.target.value)}
                         className="w-full border-2 border-gray-200 rounded-md p-2 focus:border-purple-500 focus:outline-none hover:border-purple-700 text-gray-700"
                     />
@@ -131,7 +156,7 @@ function CreateTrip() {
 
             <div className="mt-10 flex justify-end">
                 <Button
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 font-bold hover:scale-105 text-white hover:text-black"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 font-bold hover:scale-105 text-white hover:text-black mb-4"
                     onClick={OnGenerateTrip}
                 >
                     Generate Trip
