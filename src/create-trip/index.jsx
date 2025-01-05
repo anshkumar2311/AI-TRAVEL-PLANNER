@@ -5,9 +5,14 @@ import { AI_PROMPT, SelectBudgetOptions, SelectTravelsList } from '../constants/
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { chatSession } from '@/service/AIModel';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/service/firebaseConfig';
+import { Save } from 'lucide-react';
+// import { l } from '@clerk/clerk-react/dist/useAuth-Bu7xegV8';
 
 function CreateTrip() {
     const [place, setPlace] = useState(null);
+    const [Loading, setLoading] = useState(false);
     const [formData, setFormData] = useState(() => {
         // Retrieve initial form data from localStorage if available
         const savedData = localStorage.getItem('tripFormData');
@@ -50,16 +55,32 @@ function CreateTrip() {
             return;
         }
 
+        setLoading(true);
         const FINAL_PROMPT = AI_PROMPT
             .replace('{destination}', formData?.destination?.label)
             .replace('{days}', formData?.days)
             .replace('{people}', formData?.people)
             .replace('{budget}', formData?.budget);
 
-        console.log(FINAL_PROMPT);
+        // console.log(FINAL_PROMPT);
         const result = await chatSession.sendMessage(FINAL_PROMPT);
         console.log(result?.response?.text());
+        setLoading(false);
+        SaveAiTrip(result?.response?.text());
     };
+    const SaveAiTrip = async (TripData) => {
+
+        setLoading(true);
+        const user = JSON.parse(localStorage.getItem('userData'));
+        const docId = Date.now().toString()
+        await setDoc(doc(db, "AITrips", docId), {
+            userSelection: formData,
+            tripData: TripData,
+            userId: user?.userId,
+            id: docId,
+        });
+        setLoading(false);
+    }
 
     return (
         <div className="sm:px-10 md:px-32 lg:px-56 xl:px-72 px-5 mt-10">
@@ -156,10 +177,15 @@ function CreateTrip() {
 
             <div className="mt-10 flex justify-end">
                 <Button
+                    disabled={Loading}
                     className="bg-gradient-to-r from-purple-500 to-pink-500 font-bold hover:scale-105 text-white hover:text-black mb-4"
                     onClick={OnGenerateTrip}
                 >
-                    Generate Trip
+                    {Loading ? (
+                        "Generating Trip..."
+                    ) : (
+                        <>Generate Trip</>
+                    )}
                 </Button>
             </div>
         </div>
