@@ -10,7 +10,7 @@ function Hero() {
 
 
             <div className="flex flex-col items-center mx-56 gap-9 mt-16 relative z-10">
-                <h1 className="font-extrabold text-[67px] text-center">
+                <h1 className="font-extrabold text-[85px] text-center">
                     <span className="animated-text">Explore the World with Ease :</span> Your AI Travel Companion
                 </h1>
                 <style>

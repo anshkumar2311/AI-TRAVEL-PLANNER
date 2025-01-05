@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Select from "react-select";
 import axios from "axios";
 
-const LocationSearch = () => {
+const LocationSearch = ({ selectProps }) => {
     const [options, setOptions] = useState([]);
     const apiKey = import.meta.env.VITE_API_KEY;
 
@@ -36,25 +36,28 @@ const LocationSearch = () => {
     // Handle selection
     const handleChange = (selectedOption) => {
         console.log("Selected location:", selectedOption);
+        if (selectProps?.onChange) {
+            selectProps.onChange(selectedOption); // Pass the selected option to the parent
+        }
     };
 
     // Custom styles for react-select
     const customStyles = {
         control: (provided, state) => ({
             ...provided,
-            borderColor: state.isFocused ? 'purple' : provided.borderColor, // Change border color on focus
-            boxShadow: state.isFocused ? '0 0 0 2px #purple' : provided.boxShadow, // Add shadow on focus
-            '&:hover': {
-                borderColor: 'purple', // Change border color on hover
+            borderColor: state.isFocused ? "purple" : provided.borderColor, // Change border color on focus
+            boxShadow: state.isFocused ? "0 0 0 2px purple" : provided.boxShadow, // Add shadow on focus
+            "&:hover": {
+                borderColor: "purple", // Change border color on hover
             },
         }),
         placeholder: (provided) => ({
             ...provided,
-            color: 'gray', // Placeholder text color
+            color: "gray", // Placeholder text color
         }),
         singleValue: (provided) => ({
             ...provided,
-            color: 'black', // Selected value text color
+            color: "black", // Selected value text color
         }),
     };
 
