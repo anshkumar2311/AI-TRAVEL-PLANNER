@@ -39,10 +39,10 @@ function CreateTrip() {
         });
     };
 
-    useEffect(() => {
-        // Save form data to localStorage whenever it changes
-        localStorage.setItem('tripFormData', JSON.stringify(formData));
-    }, [formData]);
+    // useEffect(() => {
+    //     // Save form data to localStorage whenever it changes
+    //     localStorage.setItem('tripFormData', JSON.stringify(formData));
+    // }, [formData]);
 
     const OnGenerateTrip = async () => {
         if (!isSignedIn) {
@@ -184,7 +184,7 @@ function CreateTrip() {
                     {Loading ? (
                         "Generating Trip..."
                     ) : (
-                        <>Generate Trip</>
+                        "Generate Trip"
                     )}
                 </Button>
             </div>
