@@ -18,7 +18,7 @@ function CreateTrip() {
         const savedData = localStorage.getItem('tripFormData');
         return savedData ? JSON.parse(savedData) : {};
     });
-    const { isSignedIn, user } = useUser(); // Get the user's signed-in status and user details
+    const { isSignedIn, user } = useUser(); 
 
     // Save user data to localStorage if user is signed in
     useEffect(() => {
@@ -62,20 +62,26 @@ function CreateTrip() {
             .replace('{people}', formData?.people)
             .replace('{budget}', formData?.budget);
 
-        // console.log(FINAL_PROMPT);
+
         const result = await chatSession.sendMessage(FINAL_PROMPT);
         console.log(result?.response?.text());
         setLoading(false);
         SaveAiTrip(result?.response?.text());
     };
+
+
+    const removeUndefined = (obj) =>
+        JSON.parse(JSON.stringify(obj));
+
     const SaveAiTrip = async (TripData) => {
 
         setLoading(true);
         const user = JSON.parse(localStorage.getItem('userData'));
-        const docId = Date.now().toString()
+        const docId = Date.now().toString();
+        const cleanedFormData = removeUndefined(formData);
         await setDoc(doc(db, "AITrips", docId), {
-            userSelection: formData,
-            tripData: TripData,
+            userSelection: cleanedFormData,
+            tripData: JSON.parse(TripData),
             userId: user?.userId,
             id: docId,
         });
